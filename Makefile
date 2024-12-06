@@ -35,4 +35,4 @@ docker-build:
 
 # -v $(PWD):/app: mount the current directory to the container
 docker-run:
-	docker run -p 8080:8080 -e PORT=8080 bionicotaku/ids706_individual
+	docker run -p 8080:8080 -e WEBSITES_PORT=8080 bionicotaku/ids706_individual

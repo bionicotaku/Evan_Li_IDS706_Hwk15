@@ -22,5 +22,6 @@ EXPOSE 8080
 
 ENV FLASK_APP=run.py
 ENV FLASK_ENV=production
+ENV WEBSITES_PORT=8080
 
-CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${WEBSITES_PORT:-$PORT} --workers 4 run:app"]
+CMD ["sh", "-c", "gunicorn --bind 0.0.0.0:${WEBSITES_PORT:-8080} --timeout 120 --workers 4 run:app"]

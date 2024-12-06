@@ -12,12 +12,13 @@ def create_app():
     # initialize CORS
     CORS(app)
 
-    # preload LLM model
-    llm_service = LLMService()
-    app.llm_service = llm_service  # add LLM service instance to app context
-    
+    # set up logging
     app.logger.addHandler(logging.StreamHandler(sys.stdout))
     app.logger.setLevel(logging.INFO)
+    
+    with app.app_context():
+        llm_service = LLMService()
+        app.llm_service = llm_service
     
     # register blueprint
     from app.api import chat_bp
