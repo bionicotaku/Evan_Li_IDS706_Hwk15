@@ -11,6 +11,7 @@ def chat():
         if not user_message:
             return jsonify({"error": "Message cannot be empty"}), 400
 
+        current_app.logger.info(f"Received message: {user_message}")
         def generate():
             for token in current_app.llm_service.generate_response(user_message):
                 yield f"data: {json.dumps({'token': token})}\n\n"

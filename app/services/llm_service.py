@@ -31,6 +31,7 @@ class LLMService:
             n_ctx=2048,
             n_threads=4
         )
+        current_app.logger.info("LLM model initialized")
 
         self.model_lock = threading.Lock()
 
@@ -56,10 +57,10 @@ class LLMService:
                     stream=True
                 )
 
-                print("Generating response...")
+                current_app.logger.info("Generating response...")
                 for output in stream:
                     token = output['choices'][0]['text']
-                    print(token, end="", flush=True)
+                    current_app.logger.info(token)
                     yield token
 
         except Exception as e:

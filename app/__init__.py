@@ -1,6 +1,9 @@
 from flask import Flask
 from flask_cors import CORS
 from app.services.llm_service import LLMService
+import logging
+import sys
+
 
 
 def create_app():
@@ -12,7 +15,10 @@ def create_app():
     # preload LLM model
     llm_service = LLMService()
     app.llm_service = llm_service  # add LLM service instance to app context
-    print("LLM service initialized")
+    
+    app.logger.addHandler(logging.StreamHandler(sys.stdout))
+    app.logger.setLevel(logging.INFO)
+    
     # register blueprint
     from app.api import chat_bp
     app.register_blueprint(chat_bp)
