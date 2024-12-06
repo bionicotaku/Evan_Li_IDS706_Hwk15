@@ -6,7 +6,7 @@ Werkzeug>=2.0.0
 
 # LLM Related
 llama-cpp-python
-
+huggingface-hub
 # Configuration
 python-dotenv>=0.19.0
 

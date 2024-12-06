@@ -47,6 +47,9 @@
             padding: 10px;
             border: 1px solid #ccc;
             border-radius: 5px;
+            font-size: 16px;
+            line-height: 1.5;
+            font-family: Arial, sans-serif;
         }
 
         #send-button {
@@ -56,6 +59,7 @@
             border: none;
             border-radius: 5px;
             cursor: pointer;
+            font-size: 16px;
         }
 
         #send-button:hover {
@@ -115,7 +119,7 @@
         function addMessage(message, isUser) {
             const messageDiv = document.createElement('div');
             messageDiv.className = `message ${isUser ? 'user-message' : 'bot-message'}`;
-            messageDiv.textContent = message;
+            messageDiv.innerHTML = message.replace(/\n/g, '<br>');
             chatContainer.appendChild(messageDiv);
             chatContainer.scrollTop = chatContainer.scrollHeight;
         }
@@ -129,15 +133,13 @@
             messageInput.disabled = true;
             sendButton.disabled = true;
 
-            // add loading state
-            const loadingDiv = document.createElement('div');
-            loadingDiv.className = 'loading';
-            loadingDiv.textContent = 'AI is thinking';
-            chatContainer.appendChild(loadingDiv);
-            chatContainer.scrollTop = chatContainer.scrollHeight;
+            // 创建消息容器
+            const responseDiv = document.createElement('div');
+            responseDiv.className = 'message bot-message';
+            chatContainer.appendChild(responseDiv);
 
             try {
-                const response = await fetch('http://localhost:8000/chat', {
+                const response = await fetch('/chat', {
                     method: 'POST',
                     headers: {
                         'Content-Type': 'application/json'
@@ -145,14 +147,35 @@
                     body: JSON.stringify({ message })
                 });
 
-                const data = await response.json();
-                // remove loading state
-                loadingDiv.remove();
-                addMessage(data.response, false);
+                const reader = response.body.getReader();
+                const decoder = new TextDecoder();
+                let responseText = '';
+                let isFirstToken = true;
+
+                while (true) {
+                    const { value, done } = await reader.read();
+                    if (done) break;
+
+                    const chunk = decoder.decode(value);
+                    const lines = chunk.split('\n');
+
+                    for (const line of lines) {
+                        if (line.startsWith('data: ')) {
+                            const data = JSON.parse(line.slice(6));
+                            if (isFirstToken) {
+                                responseText += data.token.trimStart();
+                                isFirstToken = false;
+                            } else {
+                                responseText += data.token;
+                            }
+                            responseDiv.innerHTML = responseText.replace(/\n/g, '<br>');
+                            chatContainer.scrollTop = chatContainer.scrollHeight;
+                        }
+                    }
+                }
+
             } catch (error) {
-                // remove loading state
-                loadingDiv.remove();
-                addMessage('Error: Could not get response from server', false);
+                responseDiv.textContent = 'Error: Could not get response from server';
             } finally {
                 messageInput.disabled = false;
                 sendButton.disabled = false;

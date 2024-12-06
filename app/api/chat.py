@@ -1,4 +1,5 @@
-from flask import Blueprint, jsonify, request, current_app, render_template
+from flask import Blueprint, jsonify, request, current_app, render_template, Response, stream_with_context
+import json
 
 chat_bp = Blueprint('chat', __name__)
 
@@ -10,11 +11,12 @@ def chat():
         if not user_message:
             return jsonify({"error": "Message cannot be empty"}), 400
 
-        print("user_message: ", user_message)
-        response = current_app.llm_service.generate_response(user_message)
-        print("response: ", response)
+        def generate():
+            for token in current_app.llm_service.generate_response(user_message):
+                yield f"data: {json.dumps({'token': token})}\n\n"
 
-        return jsonify({"response": response})
+        return Response(stream_with_context(generate()),
+                        mimetype='text/event-stream')
     except Exception as e:
         return jsonify({"error": str(e)}), 500
 

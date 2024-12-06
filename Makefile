@@ -32,4 +32,4 @@ docker-build:
 
 # -v $(PWD):/app: mount the current directory to the container
 docker-run:
-	docker run -v $(PWD):/app bionicotaku/ids706_individual
+	docker run -p 8000:8000 bionicotaku/ids706_individual

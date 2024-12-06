@@ -37,15 +37,31 @@ class LLMService:
     def generate_response(self, prompt):
         try:
             with self.model_lock:
-                output = self.model(
-                    prompt,
-                    max_tokens=512,
+                formatted_prompt = f"""
+                <|im_start|>system
+                You are a helpful AI assistant. Respond in a clear and friendly manner.
+                <|im_end|>
+                <|im_start|>user
+                {prompt}
+                <|im_end|>
+                <|im_start|>assistant"""
+
+                stream = self.model(
+                    formatted_prompt,
+                    max_tokens=256,
                     temperature=0.7,
                     top_p=0.95,
                     echo=False,
-                    stop=["User:", "Assistant:"]
+                    stop=["<|im_end|>", "<|im_start|>"],
+                    stream=True
                 )
-                return output['choices'][0]['text'].strip()
+
+                print("Generating response...")
+                for output in stream:
+                    token = output['choices'][0]['text']
+                    print(token, end="", flush=True)
+                    yield token
+
         except Exception as e:
             current_app.logger.error(f"Error generating response: {str(e)}")
             raise
