@@ -1,21 +1,19 @@
 from flask import Flask
 from flask_cors import CORS
-from app.config import Config
 from app.services.llm_service import LLMService
 
 
-def create_app(config_class=Config):
+def create_app():
     app = Flask(__name__)
-    app.config.from_object(config_class)
 
-    # 初始化CORS
+    # initialize CORS
     CORS(app)
 
-    # 预加载LLM模型
+    # preload LLM model
     llm_service = LLMService()
-    app.llm_service = llm_service  # 将LLM服务实例添加到app上下文
+    app.llm_service = llm_service  # add LLM service instance to app context
 
-    # 注册蓝图
+    # register blueprint
     from app.api import chat_bp
     app.register_blueprint(chat_bp)
 
