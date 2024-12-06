@@ -26,10 +26,8 @@ push:
 	
 all: install format test lint run
 
-# -t: tag
 docker-build:
 	docker build -t bionicotaku/ids706_individual .
 
-# -v $(PWD):/app: mount the current directory to the container
 docker-run:
-	docker run -p 8000:8000 bionicotaku/ids706_individual
+	docker run -p 8080:8080 -e PORT=8080 bionicotaku/ids706_individual

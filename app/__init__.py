@@ -12,7 +12,7 @@ def create_app():
     # preload LLM model
     llm_service = LLMService()
     app.llm_service = llm_service  # add LLM service instance to app context
-
+    print("LLM service initialized")
     # register blueprint
     from app.api import chat_bp
     app.register_blueprint(chat_bp)
